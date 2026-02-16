@@ -6,6 +6,8 @@ ResumeUnmark provides:
 - A **Windows drag-and-drop app** (`ResumeUnmark.exe`) for batch processing files/folders.
 - A **static Web UI** (GitHub Pages) for “open site → drop PDF → download cleaned PDF” workflows.
 
+**Live Web UI:** `https://patrickzs.github.io/ResumeUnmark/`
+
 > Privacy by design: ResumeUnmark runs locally (desktop) or locally in your browser (web). No server uploads.
 
 ---
