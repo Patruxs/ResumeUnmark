@@ -196,7 +196,17 @@ async function cleanPdf(file, options) {
 
   logLine("Loading PDF…");
   const pdfLibDoc = await PDFDocument.load(inputBytes);
-  const pdfjsDoc = await pdfjsLib.getDocument({ data: inputBytes }).promise;
+
+  let pdfjsDoc = null;
+  if (options.removeEdgeText) {
+    try {
+      pdfjsDoc = await pdfjsLib.getDocument({ data: inputBytes }).promise;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      logLine(`Edge-text parsing unavailable for this PDF (${msg}). Continuing with bottom-right cleaning only.`);
+      pdfjsDoc = null;
+    }
+  }
 
   const pages = pdfLibDoc.getPages();
   logLine(`Pages: ${pages.length}`);
@@ -216,30 +226,35 @@ async function cleanPdf(file, options) {
       });
     }
 
-    if (options.removeEdgeText) {
-      const pdfjsPage = await pdfjsDoc.getPage(pageNum);
-      const viewport = pdfjsPage.getViewport({ scale: 1 });
-      const rects = await findEdgeTextRects(pdfjsPage, viewport, viewport.width, viewport.height);
+    if (options.removeEdgeText && pdfjsDoc) {
+      try {
+        const pdfjsPage = await pdfjsDoc.getPage(pageNum);
+        const viewport = pdfjsPage.getViewport({ scale: 1 });
+        const rects = await findEdgeTextRects(pdfjsPage, viewport, viewport.width, viewport.height);
 
-      for (const r of rects) {
-        const x0 = r.x0;
-        const y0 = height - r.y1; // convert top-left origin -> bottom-left origin
-        const w0 = r.x1 - r.x0;
-        const h0 = r.y1 - r.y0;
+        for (const r of rects) {
+          const x0 = r.x0;
+          const y0 = height - r.y1; // convert top-left origin -> bottom-left origin
+          const w0 = r.x1 - r.x0;
+          const h0 = r.y1 - r.y0;
 
-        const x = Math.max(0, Math.min(x0, width));
-        const y = Math.max(0, Math.min(y0, height));
-        const w = Math.max(0, Math.min(w0, width - x));
-        const h = Math.max(0, Math.min(h0, height - y));
-        if (w === 0 || h === 0) continue;
+          const x = Math.max(0, Math.min(x0, width));
+          const y = Math.max(0, Math.min(y0, height));
+          const w = Math.max(0, Math.min(w0, width - x));
+          const h = Math.max(0, Math.min(h0, height - y));
+          if (w === 0 || h === 0) continue;
 
-        page.drawRectangle({
-          x,
-          y,
-          width: w,
-          height: h,
-          color: rgb(1, 1, 1),
-        });
+          page.drawRectangle({
+            x,
+            y,
+            width: w,
+            height: h,
+            color: rgb(1, 1, 1),
+          });
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        logLine(`Edge-text cleanup skipped on page ${pageNum} (${msg}).`);
       }
     }
 
@@ -258,7 +273,8 @@ function resetUI() {
 
 async function run() {
   if (!selectedFile) return;
-  if (selectedFile.type && selectedFile.type !== "application/pdf") {
+  const nameLower = (selectedFile.name || "").toLowerCase();
+  if (selectedFile.type && selectedFile.type !== "application/pdf" && !nameLower.endsWith(".pdf")) {
     logLine("This doesn't look like a PDF. Please select a .pdf file.");
     return;
   }
@@ -285,7 +301,11 @@ async function run() {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     logLine(`ERROR: ${msg}`);
-    logLine("If this PDF is password-protected/encrypted, the web version can't process it.");
+    if (/encrypt|password/i.test(msg)) {
+      logLine("This PDF looks password-protected/encrypted. The web version can't process encrypted PDFs.");
+    } else {
+      logLine("If this PDF is password-protected/encrypted, the web version can't process it.");
+    }
   } finally {
     setBusy(false);
   }
