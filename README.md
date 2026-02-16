@@ -70,31 +70,85 @@ _Note: The Web UI is perfect for one-off tasks on any device._
 If you prefer running the raw script or want to modify the code:
 
 1.  **Prerequisites**: Python 3.9+
-2.  **Install Dependencies**:
+2.  **Clone the repository**:
     ```bash
-    pip install pymupdf
+    git clone https://github.com/patrickzs/ResumeUnmark.git
+    cd ResumeUnmark
     ```
-3.  **Run**:
+3.  **Install Dependencies**:
     ```bash
-    python ResumeUnmark.py "path/to/your/file.pdf"
+    pip install -r requirements.txt
     ```
-    _Or drag files onto the script if you have Python file associations set up._
+4.  **Run**:
+    ```bash
+    python -m src.cli.main "path/to/your/file.pdf"
+    ```
+
+### Option D: Install as a Python Package
+
+Install ResumeUnmark as a package for programmatic use:
+
+```bash
+pip install -e .
+```
+
+Then use it in your Python code:
+
+```python
+from src.core import PDFCleaner
+
+cleaner = PDFCleaner()
+cleaner.clean_file("path/to/document.pdf")
+```
 
 ---
 
-## Building the Executable
+## Development
+
+### Project Structure
+
+```
+ResumeUnmark/
+├── src/                    # Source code
+│   ├── core/              # Core watermark removal logic
+│   │   ├── cleaner.py     # Main PDF cleaning class
+│   │   ├── detector.py    # Edge text detection
+│   │   └── config.py      # Configuration constants
+│   ├── cli/               # Command-line interface
+│   ├── utils/             # Utility functions
+│   └── __init__.py        # Package initialization
+├── docs/                  # Web UI (GitHub Pages)
+├── tests/                 # Unit tests
+├── scripts/               # Build and automation scripts
+└── .github/workflows/     # CI/CD pipelines
+```
+
+### Building the Executable
 
 To build the standalone `.exe` yourself:
 
-1.  Install PyInstaller:
+1.  Install development dependencies:
     ```bash
-    pip install pyinstaller
+    pip install -r requirements-dev.txt
     ```
-2.  Run the build command:
+2.  Run the build script:
     ```bash
-    pyinstaller --onefile --name "ResumeUnmark" ResumeUnmark.py
+    python scripts/build.py
     ```
 3.  Find your executable in the `dist/` folder.
+
+### Running Tests
+
+```bash
+# Install dev dependencies
+pip install -r requirements-dev.txt
+
+# Run tests
+pytest
+
+# Run with coverage
+pytest --cov=src --cov-report=html
+```
 
 ---
 
@@ -111,27 +165,20 @@ The "Smart Right-Edge Detection" algorithm follows these rules to identify water
 
 This ensures that sidebars or right-aligned headers are preserved, while footer-style watermarks are removed.
 
----
-
 ## Contribution Guidelines
 
-Contributions are welcome — especially improvements to watermark detection heuristics and UI polish.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-### How to contribute
+### Quick Start for Contributors
 
-1.  Fork the repo and create a feature branch.
-2.  Keep changes focused and easy to review.
-3.  Update documentation for user-visible behavior changes.
-4.  Open a Pull Request with:
-    - what changed
-    - why it changed
-    - a before/after note (screenshots for UI changes help)
+1.  Fork the repo and create a feature branch
+2.  Install dev dependencies: `pip install -r requirements-dev.txt`
+3.  Make your changes and add tests
+4.  Run tests: `pytest`
+5.  Format code: `black src/ tests/`
+6.  Open a Pull Request
 
-### Development notes
-
-- Web UI lives in `docs/` (static hosting compatible).
-- Desktop logic lives in `ResumeUnmark.py` (PyMuPDF).
-- Prefer local-first approaches; avoid introducing server-side processing.
+For detailed development setup and guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 

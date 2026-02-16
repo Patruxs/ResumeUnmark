@@ -409,14 +409,12 @@ function acceptFileFromDrop(file) {
 
 els.dropzone.addEventListener("click", (e) => {
   if (isBusy) return;
-  // Don't trigger if clicking the label itself (it has its own 'for' attribute)
   if (e.target.tagName === 'LABEL' || e.target.closest('label')) return;
   els.fileInput.click();
 });
 
 els.dropzone.addEventListener("keydown", (e) => {
   if (isBusy) return;
-  // Don't trigger if focused on the label itself
   if (e.target.tagName === 'LABEL' || e.target.closest('label')) return;
   if (e.key === "Enter" || e.key === " ") {
     e.preventDefault();

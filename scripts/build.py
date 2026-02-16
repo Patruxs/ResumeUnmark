@@ -1,0 +1,90 @@
+"""
+Build script for creating the standalone executable.
+
+This script uses PyInstaller to create a single-file executable
+for Windows distribution.
+"""
+
+import os
+import sys
+import shutil
+import subprocess
+from pathlib import Path
+
+
+def clean_build_artifacts():
+    """Remove previous build artifacts."""
+    print("🧹 Cleaning previous build artifacts...")
+    
+    dirs_to_remove = ['build', 'dist', '__pycache__']
+    for dir_name in dirs_to_remove:
+        if os.path.exists(dir_name):
+            shutil.rmtree(dir_name)
+            print(f"   Removed: {dir_name}/")
+    
+    # Remove .spec files
+    for spec_file in Path('.').glob('*.spec'):
+        spec_file.unlink()
+        print(f"   Removed: {spec_file}")
+
+
+def build_executable():
+    """Build the executable using PyInstaller."""
+    print("\n🔨 Building executable with PyInstaller...")
+    
+    cmd = [
+        'pyinstaller',
+        '--onefile',
+        '--name', 'ResumeUnmark',
+        '--console',
+        '--clean',
+        '--noconfirm',
+        'src/cli/main.py',
+    ]
+    
+    try:
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        print(result.stdout)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Build failed: {e}")
+        print(e.stderr)
+        return False
+
+
+def main():
+    """Main build process."""
+    print("╔════════════════════════════════════════════════════════╗")
+    print("║         ResumeUnmark - Executable Builder             ║")
+    print("╚════════════════════════════════════════════════════════╝\n")
+    
+   
+    try:
+        subprocess.run(['pyinstaller', '--version'], 
+                      check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("❌ PyInstaller not found. Install it with:")
+        print("   pip install pyinstaller")
+        sys.exit(1)
+    
+
+    clean_build_artifacts()
+    
+   
+    if build_executable():
+        exe_path = Path('dist') / 'ResumeUnmark.exe'
+        if exe_path.exists():
+            size_mb = exe_path.stat().st_size / (1024 * 1024)
+            print(f"\n✅ Build successful!")
+            print(f"   Location: {exe_path.absolute()}")
+            print(f"   Size: {size_mb:.1f} MB")
+        else:
+            print("\n⚠️  Build completed but executable not found!")
+            sys.exit(1)
+    else:
+        print("\n❌ Build failed!")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
