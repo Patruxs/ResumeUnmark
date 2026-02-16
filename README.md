@@ -1,187 +1,281 @@
+<div align="center">
+
 # ResumeUnmark
 
-Remove bottom-right watermarks and isolated right-edge text from PDFs — locally, fast, and privacy-first.
+<!-- TODO: Add a real logo to docs/assets/logo.png -->
+![ResumeUnmark Logo](docs/assets/logo.png)
 
-**ResumeUnmark** provides two powerful ways to clean your documents:
+**Remove bottom-right watermarks and isolated right-edge text from PDFs — locally, fast, and privacy-first.**
 
-1.  **Desktop App**: Drag & Drop batch processing for files and folders (Windows `.exe`).
-2.  **Web Interface**: A browser-based tool for quick, single-file cleaning (GitHub Pages).
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/patrickzs/ResumeUnmark/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%2B-informational)](#-installation--prerequisites)
+[![Tests](https://github.com/patrickzs/ResumeUnmark/actions/workflows/tests.yml/badge.svg)](https://github.com/patrickzs/ResumeUnmark/actions/workflows/tests.yml)
+[![Build EXE](https://github.com/patrickzs/ResumeUnmark/actions/workflows/build.yml/badge.svg)](https://github.com/patrickzs/ResumeUnmark/actions/workflows/build.yml)
 
-**Live Web UI:** [https://patrickzs.github.io/ResumeUnmark/](https://patrickzs.github.io/ResumeUnmark/)
+[Features](#-key-features) •
+[Architecture](#-overall-architecture) •
+[Installation](#-installation--prerequisites) •
+[Usage](#-running-the-project-usage) •
+[Roadmap](#-roadmap) •
+[Contributing](#-contribution-guidelines)
 
-> **Privacy Note:** All processing happens locally on your machine (whether using the Desktop App or the Web UI). Your files are never uploaded to any server.
+</div>
 
 ---
 
-## Introduction
+## 💡 Introduction
 
-Many resume builders and document sites add small logos, links, or copyright text near the **bottom-right corner** or along the **right margin**. ResumeUnmark removes these distractions to give you a clean, professional PDF.
+### The hook
 
-It uses two methods:
+Many resume builders and document sites add tiny logos, links, or copyright text in the **bottom-right corner** or along the **right margin** of exported PDFs. That content can look unprofessional and distract from the actual resume.
 
-1.  **Universal Bottom-Right Cleaning**: Removes everything in a fixed bottom-right area (e.g., standard site logos).
-2.  **Smart Right-Edge Detection**: Identifies and removes small, isolated text blocks in the right margin that sit below the main body content (e.g., "© site.com").
+### The solution
+
+ResumeUnmark removes these artifacts using **PDF redaction**:
+
+- 🧱 **Fixed bottom-right redaction**: reliably clears a configurable corner region (great for consistent “site logo” watermarks).
+- 🧠 **Smart right-edge detection**: detects small, isolated text blocks on the right side *below the body content* (great for “© site.com” style marks).
+
+### Why use this tool?
+
+- 🔒 **Privacy-first**: everything runs locally (desktop and web UI).
+- ⚡ **Fast**: page-level redaction + optimized save settings.
+- 🧰 **Two interfaces**: Windows `.exe` for batch work + browser-based Web UI for quick edits.
+- 🧪 **CI-backed**: tests and builds run on GitHub Actions.
+
+---
+
+## 🚀 Key Features
+
+- 🧼 **Dual-mode cleaning**
+  - **Corner box**: deterministic removal for predictable watermarks
+  - **Edge heuristic**: adaptive removal for shifting watermark positions
+- 📦 **Batch processing (Windows EXE)**: drag & drop files *or folders*; processes PDFs recursively.
+- 🧾 **Safe outputs**: writes a new `*_clean.pdf` file; the original remains untouched.
+- 🛠 **Tunable defaults**: detection/removal constants live in `src/core/config.py`.
+
+### Without vs. With ResumeUnmark
+
+|  | Without | With |
+|---|---|---|
+| Footer / edge watermark | ❌ Still visible | ✅ Redacted |
+| Batch folders | ❌ Manual | ✅ Drag & drop |
+| Privacy | ⚠️ Depends | ✅ Local-only |
+
+> 🖼️ **Screenshots placeholder:** Add `docs/assets/before.png` and `docs/assets/after.png` and link them here.
+
+---
+
+## 🧱 Overall Architecture
+
+ResumeUnmark ships as **two independent frontends**:
+
+- 🐍 **Desktop pipeline (Python + PyMuPDF)** — best for batch cleaning and folders.
+- 🌐 **Web pipeline (static Web UI in `docs/`)** — best for a quick single-file clean in the browser.
 
 ```mermaid
-flowchart LR
-A[PDF Input] -->|Select / Drag & Drop| B[ResumeUnmark]
-B --> C{Analysis}
-C -->|Bottom-Right Area| D[Redact Fixed Box]
-C -->|Right-Edge Text| E[Redact Isolated Text]
-E --> F["Write *_clean.pdf"]
-F --> G["Auto-download (Web) / Save locally (EXE)"]
+flowchart TD
+  A[PDF Input] -->|Drag & Drop / CLI args| B[Windows EXE / CLI\nsrc/cli/main.py]
+  A -->|Upload| C[Web UI\n/docs]
+
+  B --> D[PDFCleaner\nsrc/core/cleaner.py]
+  D --> E[Fixed Corner Redaction\nREMOVE_WIDTH/HEIGHT]
+  D --> F[EdgeTextDetector\nsrc/core/detector.py]
+  E --> G[Write *_clean.pdf\noptimized save]
+  F --> G
+
+  C --> H[Client-side PDF processing\npdf-lib + pdf.js]
+  H --> I[Download cleaned PDF]
 ```
 
----
+### Tech stack & core dependencies
 
-## Key Features
-
-- **Dual Cleaning Mode**:
-  - **Fixed Area**: Automatically whitens out the bottom-right corner.
-  - **Smart Heuristic**: Detects small text blocks on the right half of the page that are _below_ the main body content (robust against resizing or shifting content).
-- **Batch Processing (Desktop App)**: Drag multiple PDFs or entire folders onto the application to clean them all at once.
-- **Recursive Folder Support**: When dropping a folder, it finds and processes all `.pdf` files inside.
-- **Safe Output**: Creates a new file ending in `_clean.pdf`, leaving your original file untouched.
-- **Zero Configuration**: Works out of the box for most common resume watermarks.
+- **Desktop**: Python 3.9+ + **PyMuPDF** (`pymupdf` / `fitz`)
+- **Packaging**: **PyInstaller** (`ResumeUnmark.spec`, `scripts/build.py`)
+- **Web UI**: static assets in `docs/` (served by GitHub Pages)
+- **CI/CD**: GitHub Actions (`.github/workflows/tests.yml`, `.github/workflows/build.yml`)
 
 ---
 
-## Installation & Usage
+## 🧰 Installation & Prerequisites
 
-### Option A: Windows Desktop App (Recommended for Batch)
+### Option A — Windows Desktop App (Recommended)
 
-1.  **Download**: Go to [Releases](../../releases) and download `ResumeUnmark.exe`.
-2.  **Run**: Place it anywhere (Desktop/Documents).
-3.  **Use**:
-    - **Drag & Drop**: Drag PDF files or folders directly onto `ResumeUnmark.exe`.
-    - **Check Output**: Cleaned files (`*_clean.pdf`) will appear in the same folder as the originals.
+1. Download `ResumeUnmark.exe` from Releases: https://github.com/patrickzs/ResumeUnmark/releases
+2. Put it anywhere (Desktop/Documents).
+3. Drag & drop PDF files or folders onto `ResumeUnmark.exe`.
 
-### Option B: Web UI (No Install)
+### Option B — Web UI (No install)
 
-1.  **Open**: Navigate to the [Live Web UI](https://patrickzs.github.io/ResumeUnmark/).
-2.  **Upload**: Drag & drop your PDF into the drop zone.
-3.  **Clean**: Click **Clean & Download**.
-4.  **Save**: The cleaned file is downloaded by your browser.
+- Live Web UI: https://patrickzs.github.io/ResumeUnmark/
 
-_Note: The Web UI is perfect for one-off tasks on any device._
+### Option C — Run from source (Python)
 
-### Option C: Run from Source (Python)
+**Prereqs**
 
-If you prefer running the raw script or want to modify the code:
+- Python **3.9+**
 
-1.  **Prerequisites**: Python 3.9+
-2.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/patrickzs/ResumeUnmark.git
-    cd ResumeUnmark
-    ```
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-4.  **Run**:
-    ```bash
-    python -m src.cli.main "path/to/your/file.pdf"
-    ```
-
-### Option D: Install as a Python Package
-
-Install ResumeUnmark as a package for programmatic use:
+**Clone + install**
 
 ```bash
-pip install -e .
-```
-
-Then use it in your Python code:
-
-```python
-from src.core import PDFCleaner
-
-cleaner = PDFCleaner()
-cleaner.clean_file("path/to/document.pdf")
+git clone https://github.com/patrickzs/ResumeUnmark.git
+cd ResumeUnmark
+pip install -r requirements.txt
 ```
 
 ---
 
-## Development
+## 🔧 Environment Configuration
 
-### Project Structure
+No `.env` is required.
 
-```
-ResumeUnmark/
-├── src/                    # Source code
-│   ├── core/              # Core watermark removal logic
-│   │   ├── cleaner.py     # Main PDF cleaning class
-│   │   ├── detector.py    # Edge text detection
-│   │   └── config.py      # Configuration constants
-│   ├── cli/               # Command-line interface
-│   ├── utils/             # Utility functions
-│   └── __init__.py        # Package initialization
-├── docs/                  # Web UI (GitHub Pages)
-├── tests/                 # Unit tests
-├── scripts/               # Build and automation scripts
-└── .github/workflows/     # CI/CD pipelines
+```dotenv
+# ResumeUnmark does not require environment variables.
 ```
 
-### Building the Executable
+---
 
-To build the standalone `.exe` yourself:
+## ▶️ Running the Project (Usage)
 
-1.  Install development dependencies:
-    ```bash
-    pip install -r requirements-dev.txt
-    ```
-2.  Run the build script:
-    ```bash
-    python scripts/build.py
-    ```
-3.  Find your executable in the `dist/` folder.
+### Windows EXE (Drag & Drop)
 
-### Running Tests
+- Drag a PDF (or a folder containing PDFs) onto `ResumeUnmark.exe`
+- Outputs appear next to the source files as `*_clean.pdf`
+
+> 🎞️ **GIF placeholder:** Add a drag & drop demo GIF in `docs/assets/demo.gif`.
+
+### CLI (from source)
+
+Run on one or more paths (files or folders):
 
 ```bash
-# Install dev dependencies
+python -m src.cli.main "path/to/file-or-folder"
+```
+
+Example output:
+
+```text
+[SUCCESS] Cleaned: input.pdf -> input_clean.pdf
+```
+
+### Web UI (local development)
+
+Serve the repo root and open the `/docs/` path:
+
+```bash
+python -m http.server 8000
+```
+
+Then open:
+
+- `http://localhost:8000/docs/`
+
+---
+
+## 🏗️ Build & Release
+
+### Build the Windows EXE locally (PyInstaller)
+
+```bash
 pip install -r requirements-dev.txt
+python scripts/build.py
+```
 
-# Run tests
-pytest
+Outputs:
 
-# Run with coverage
-pytest --cov=src --cov-report=html
+- `dist/ResumeUnmark.exe`
+
+### Build the EXE via GitHub Actions (CI/CD) using GitHub CLI
+
+Manual build (artifact only):
+
+```bash
+gh workflow run "Build EXE"
+gh run list --workflow "Build EXE" --limit 1
+gh run download <run-id> -n ResumeUnmark-windows-exe
+```
+
+Release build (tag push → GitHub Release asset):
+
+```bash
+git tag v2.0.1
+git push origin v2.0.1
 ```
 
 ---
 
-## How It Works (The Heuristic)
+## 🗂 Folder Structure
 
-The "Smart Right-Edge Detection" algorithm follows these rules to identify watermarks without accidentally deleting your resume content:
-
-1.  **Define Body Content**: Scans for text blocks that start on the **left half** of the page (x < 50%). The lowest point of this text defines the "Body Bottom".
-2.  **Identify Candidates**: Looks for text blocks on the **right half** (x >= 50%).
-3.  **Filter**: A block is considered a watermark if:
-    - It is **below** the "Body Bottom".
-    - It is **small** (short character count).
-    - It is **isolated** from other content.
-
-This ensures that sidebars or right-aligned headers are preserved, while footer-style watermarks are removed.
-
-## Contribution Guidelines
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
-### Quick Start for Contributors
-
-1.  Fork the repo and create a feature branch
-2.  Install dev dependencies: `pip install -r requirements-dev.txt`
-3.  Make your changes and add tests
-4.  Run tests: `pytest`
-5.  Format code: `black src/ tests/`
-6.  Open a Pull Request
-
-For detailed development setup and guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
+```text
+ResumeUnmark/
+├── .github/workflows/         # CI/CD (tests + exe build)
+├── docs/                      # Web UI (GitHub Pages)
+├── scripts/                   # Automation (build script)
+├── src/                       # Desktop app (Python)
+│   ├── cli/                   # CLI entry point (drag & drop / args)
+│   ├── core/                  # Cleaner + detection logic
+│   └── utils/                 # File discovery + path helpers
+├── tests/                     # Unit tests
+├── ResumeUnmark.spec           # PyInstaller spec
+├── requirements.txt            # Runtime deps
+└── requirements-dev.txt        # Dev + build deps (pytest/black/flake8/mypy/pyinstaller)
+```
 
 ---
 
-## License
+## 🗺 Roadmap
 
-MIT. See `LICENSE` if present, otherwise treat this project as MIT-licensed per repository intent.
+Project status: **beta**.
+
+- [x] Fixed bottom-right corner removal
+- [x] Right-edge watermark detection
+- [x] Batch folder support (drag & drop)
+- [x] Web UI (GitHub Pages)
+- [x] CI tests on Windows/macOS/Linux
+- [x] CI build for `ResumeUnmark.exe` + artifact upload
+- [ ] Add user-configurable profiles (conservative/aggressive)
+- [ ] Add a small GUI toggle for edge detection vs. corner-only
+- [ ] Improve packaging metadata / console script entrypoint
+
+---
+
+## 🤝 Contribution Guidelines
+
+### Standard Git workflow
+
+1. Fork the repo
+2. Create a branch: `git checkout -b feat/my-change`
+3. Commit: `git commit -m "feat: ..."`
+4. Push: `git push origin feat/my-change`
+5. Open a Pull Request
+
+### Local checks (recommended before PR)
+
+```bash
+pip install -r requirements-dev.txt
+pytest -v
+black --check src/ tests/
+flake8 src/ tests/ --max-line-length=100
+mypy src/
+```
+
+---
+
+## 📜 License, Disclaimers, & Acknowledgments
+
+### License
+
+MIT — see `LICENSE`.
+
+### Disclaimers
+
+- ResumeUnmark is not affiliated with any resume builder or watermarking service.
+- Redaction is destructive by design (it removes content in targeted regions). Always review outputs before sharing.
+
+### Acknowledgments
+
+- **PyMuPDF** (`pymupdf` / `fitz`) for PDF parsing and redaction
+- **PyInstaller** for Windows executable packaging
+- **pdf-lib** and **pdf.js** for browser-based PDF manipulation in the Web UI
+- GitHub Actions for CI/CD
