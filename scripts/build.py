@@ -14,7 +14,7 @@ from pathlib import Path
 
 def clean_build_artifacts():
     """Remove previous build artifacts."""
-    print("🧹 Cleaning previous build artifacts...")
+    print("Cleaning previous build artifacts...")
     
     dirs_to_remove = ['build', 'dist', '__pycache__']
     for dir_name in dirs_to_remove:
@@ -31,7 +31,7 @@ def clean_build_artifacts():
 
 def build_executable():
     """Build the executable using PyInstaller."""
-    print("\n🔨 Building executable with PyInstaller...")
+    print("\nBuilding executable with PyInstaller...")
     
     # Check if spec file exists
     spec_file = 'ResumeUnmark.spec'
@@ -63,23 +63,23 @@ def build_executable():
         print(result.stdout)
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Build failed: {e}")
+        print(f"Build failed: {e}")
         print(e.stderr)
         return False
 
 
 def main():
     """Main build process."""
-    print("╔════════════════════════════════════════════════════════╗")
-    print("║         ResumeUnmark - Executable Builder             ║")
-    print("╚════════════════════════════════════════════════════════╝\n")
+    print("========================================================")
+    print("         ResumeUnmark - Executable Builder              ")
+    print("========================================================\n")
     
    
     try:
         subprocess.run(['pyinstaller', '--version'], 
                       check=True, capture_output=True)
     except (subprocess.CalledProcessError, FileNotFoundError):
-        print("❌ PyInstaller not found. Install it with:")
+        print("PyInstaller not found. Install it with:")
         print("   pip install pyinstaller")
         sys.exit(1)
     
@@ -91,14 +91,14 @@ def main():
         exe_path = Path('dist') / 'ResumeUnmark.exe'
         if exe_path.exists():
             size_mb = exe_path.stat().st_size / (1024 * 1024)
-            print(f"\n✅ Build successful!")
+            print("\nBuild successful!")
             print(f"   Location: {exe_path.absolute()}")
             print(f"   Size: {size_mb:.1f} MB")
         else:
-            print("\n⚠️  Build completed but executable not found!")
+            print("\nBuild completed but executable not found!")
             sys.exit(1)
     else:
-        print("\n❌ Build failed!")
+        print("\nBuild failed!")
         sys.exit(1)
 
 
