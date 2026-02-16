@@ -7,11 +7,9 @@
 [![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/patrickzs/ResumeUnmark/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.9%2B-informational)](#-installation--prerequisites)
-[![Tests](https://github.com/patrickzs/ResumeUnmark/actions/workflows/tests.yml/badge.svg)](https://github.com/patrickzs/ResumeUnmark/actions/workflows/tests.yml)
-[![Build EXE](https://github.com/patrickzs/ResumeUnmark/actions/workflows/build.yml/badge.svg)](https://github.com/patrickzs/ResumeUnmark/actions/workflows/build.yml)
 
 [Features](#-key-features) •
-[Architecture](#-overall-architecture) •
+[Folder Structure](#-folder-structure) •
 [Installation](#-installation--prerequisites) •
 [Usage](#-running-the-project-usage) •
 [Roadmap](#-roadmap) •
@@ -38,7 +36,6 @@ ResumeUnmark removes these artifacts using **PDF redaction**:
 
 - 🔒 **Privacy-first**: everything runs locally (desktop and web UI).
 - ⚡ **Fast**: page-level redaction + optimized save settings.
-- 🧰 **Two interfaces**: Windows `.exe` for batch work + browser-based Web UI for quick edits.
 - 🧪 **CI-backed**: tests and builds run on GitHub Actions.
 
 ---
@@ -48,7 +45,6 @@ ResumeUnmark removes these artifacts using **PDF redaction**:
 - 🧼 **Dual-mode cleaning**
   - **Corner box**: deterministic removal for predictable watermarks
   - **Edge heuristic**: adaptive removal for shifting watermark positions
-- 📦 **Batch processing (Windows EXE)**: drag & drop files _or folders_; processes PDFs recursively.
 - 🧾 **Safe outputs**: writes a new `*_clean.pdf` file; the original remains untouched.
 - 🛠 **Tunable defaults**: detection/removal constants live in `src/core/config.py`.
 
@@ -61,37 +57,6 @@ ResumeUnmark removes these artifacts using **PDF redaction**:
 | Privacy                 | ⚠️ Depends       | ✅ Local-only  |
 
 > 🖼️ **Screenshots placeholder:** Add `docs/assets/before.png` and `docs/assets/after.png` and link them here.
-
----
-
-## 🧱 Overall Architecture
-
-ResumeUnmark ships as **two independent frontends**:
-
-- 🐍 **Desktop pipeline (Python + PyMuPDF)** — best for batch cleaning and folders.
-- 🌐 **Web pipeline (static Web UI in `docs/`)** — best for a quick single-file clean in the browser.
-
-```mermaid
-flowchart TD
-  A[PDF Input] -->|Drag & Drop / CLI args| B[Windows EXE / CLI\nsrc/cli/main.py]
-  A -->|Upload| C[Web UI\n/docs]
-
-  B --> D[PDFCleaner\nsrc/core/cleaner.py]
-  D --> E[Fixed Corner Redaction\nREMOVE_WIDTH/HEIGHT]
-  D --> F[EdgeTextDetector\nsrc/core/detector.py]
-  E --> G[Write *_clean.pdf\noptimized save]
-  F --> G
-
-  C --> H[Client-side PDF processing\npdf-lib + pdf.js]
-  H --> I[Download cleaned PDF]
-```
-
-### Tech stack & core dependencies
-
-- **Desktop**: Python 3.9+ + **PyMuPDF** (`pymupdf` / `fitz`)
-- **Packaging**: **PyInstaller** (`ResumeUnmark.spec`, `scripts/build.py`)
-- **Web UI**: static assets in `docs/` (served by GitHub Pages)
-- **CI/CD**: GitHub Actions (`.github/workflows/tests.yml`, `.github/workflows/build.yml`)
 
 ---
 
@@ -113,16 +78,6 @@ flowchart TD
 git clone https://github.com/patrickzs/ResumeUnmark.git
 cd ResumeUnmark
 pip install -r requirements.txt
-```
-
----
-
-## 🔧 Environment Configuration
-
-No `.env` is required.
-
-```dotenv
-# ResumeUnmark does not require environment variables.
 ```
 
 ---
@@ -154,21 +109,6 @@ python -m http.server 8000
 Then open:
 
 - `http://localhost:8000/docs/`
-
----
-
-## 🏗️ Build & Release
-
-### Build the Windows EXE locally (PyInstaller)
-
-```bash
-pip install -r requirements-dev.txt
-python scripts/build.py
-```
-
-Outputs:
-
-- `dist/ResumeUnmark.exe`
 
 ---
 
