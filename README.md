@@ -36,7 +36,6 @@ ResumeUnmark removes these artifacts using **PDF redaction**:
 
 - 🔒 **Privacy-first**: everything runs locally (desktop and web UI).
 - ⚡ **Fast**: page-level redaction + optimized save settings.
-- 🧪 **CI-backed**: tests and builds run on GitHub Actions.
 
 ---
 
@@ -56,7 +55,11 @@ ResumeUnmark removes these artifacts using **PDF redaction**:
 | Batch folders           | ❌ Manual        | ✅ Drag & drop |
 | Privacy                 | ⚠️ Depends       | ✅ Local-only  |
 
-> 🖼️ **Screenshots placeholder:** Add `docs/assets/before.png` and `docs/assets/after.png` and link them here.
+### Visual Comparison
+
+|      Original (Watermarked)       |       Cleaned (Processed)       |
+| :-------------------------------: | :-----------------------------: |
+| ![Before](docs/assets/before.png) | ![After](docs/assets/after.png) |
 
 ---
 
@@ -185,4 +188,3 @@ MIT — see `LICENSE`.
 - **PyMuPDF** (`pymupdf` / `fitz`) for PDF parsing and redaction
 - **PyInstaller** for Windows executable packaging
 - **pdf-lib** and **pdf.js** for browser-based PDF manipulation in the Web UI
-- GitHub Actions for CI/CD
