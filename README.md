@@ -13,7 +13,7 @@
 [Features](#-key-features) •
 [Folder Structure](#-folder-structure) •
 [Installation](#-installation--prerequisites) •
-[Usage](#-running-the-project-usage) •
+[How to Use](#-how-to-use) •
 [Roadmap](#-roadmap) •
 [Contributing](#-contribution-guidelines)
 
@@ -22,8 +22,6 @@
 ---
 
 ## 💡 Introduction
-
-### The hook
 
 Many resume builders and document sites add tiny logos, links, or copyright text in the **bottom-right corner** or along the **right margin** of exported PDFs. That content can look unprofessional and distract from the actual resume.
 
@@ -87,33 +85,52 @@ pip install -r requirements.txt
 
 ---
 
-## ▶️ Running the Project (Usage)
+## 📖 How to Use
 
-### CLI (from source)
+### 1. Web Version (No Installation Required)
 
-Run on one or more paths (files or folders):
+The easiest way to use ResumeUnmark is via the web interface. It runs entirely in your browser—no files are uploaded to any server.
 
-```bash
-python -m src.cli.main "path/to/file-or-folder"
-```
+1. Go to **[ResumeUnmark Web](https://patrickzs.github.io/ResumeUnmark/)**.
+2. **Drag & Drop** your PDF (or click "Choose file").
+3. Click **Clean & Download**.
+4. Save your new `_clean.pdf` file!
 
-Example output:
+### 2. CLI (Python Source)
 
-```text
-[SUCCESS] Cleaned: input.pdf -> input_clean.pdf
-```
+For developers or batch automation, run directly from source.
 
-### Web UI (local development)
-
-Serve the repo root and open the `/docs/` path:
+**Setup**:
+Ensure you have installed the dependencies:
 
 ```bash
-python -m http.server 8000
+pip install -r requirements.txt
 ```
 
-Then open:
+**Single File**:
 
-- `http://localhost:8000/docs/`
+```bash
+python -m src.cli.main "path/to/my_resume.pdf"
+```
+
+_Output: `path/to/my_resume_clean.pdf`_
+
+**Batch Processing (Folder)**:
+Clean every PDF in a folder automatically:
+
+```bash
+python -m src.cli.main "path/to/folder_with_pdfs"
+```
+
+### 3. Local Web Server (Development)
+
+To run the web interface locally:
+
+1. Start the server:
+   ```bash
+   python -m http.server 8000
+   ```
+2. Open your browser to: `http://localhost:8000/docs/`
 
 ---
 
