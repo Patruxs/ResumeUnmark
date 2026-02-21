@@ -67,7 +67,7 @@ ResumeUnmark removes these artifacts using **PDF redaction**:
 
 ### Option A — Web UI (No install)
 
-- Live Web UI: https://patrickzs.github.io/ResumeUnmark/
+- Live Web UI: https://patruxs.github.io/ResumeUnmark/
 
 ### Option B — Run from source (Python)
 
