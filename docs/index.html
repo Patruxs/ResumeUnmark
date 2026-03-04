@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 
 <head>
   <meta charset="utf-8" />
@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css?v=2.1.0" />
   <link rel="icon" type="image/png" href="./assets/ResumeUnmark_icon.png" />
 </head>
 
@@ -166,22 +166,21 @@
     </footer>
   </main>
 
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=2.1.0"></script>
   <script>
     // Theme toggle (pure UI — does not touch app.js)
     (() => {
       const toggle = document.getElementById('themeToggle');
       if (!toggle) return;
       const root = document.documentElement;
+
+      // Always default to light; only apply stored preference if it exists
       const stored = localStorage.getItem('ru-theme');
-      if (stored) root.setAttribute('data-theme', stored);
+      root.setAttribute('data-theme', stored || 'light');
 
       toggle.addEventListener('click', () => {
         const current = root.getAttribute('data-theme');
-        let next;
-        if (current === 'light') next = 'dark';
-        else if (current === 'dark') next = 'light';
-        else next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
         root.setAttribute('data-theme', next);
         localStorage.setItem('ru-theme', next);
       });
