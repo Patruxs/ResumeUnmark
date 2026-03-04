@@ -4,89 +4,189 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ResumeUnmark (Web)</title>
-  <meta name="description" content="Clean bottom-right watermarks from PDFs locally in your browser. No uploads." />
+  <title>ResumeUnmark — Clean PDF Watermarks</title>
+  <meta name="description"
+    content="Remove bottom-right watermarks from PDFs locally in your browser. No uploads, no servers — total privacy." />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#fbfbfd" media="(prefers-color-scheme: light)" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./style.css" />
   <link rel="icon" type="image/png" href="./assets/ResumeUnmark_icon.png" />
 </head>
 
 <body>
-  <main class="wrap">
-    <header class="header">
-      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
-        <img src="./assets/ResumeUnmark_icon.png" alt="Logo" width="48" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" />
-        <h1 style="margin: 0;">ResumeUnmark</h1>
-      </div>
-      <p class="sub">
-        Drop a PDF, clean it locally in your browser, then it downloads automatically.
-        <span class="pill">No uploads</span>
-      </p>
-    </header>
+  <!-- Animated gradient backdrop -->
+  <div class="scene" aria-hidden="true">
+    <div class="scene__orb scene__orb--1"></div>
+    <div class="scene__orb scene__orb--2"></div>
+    <div class="scene__orb scene__orb--3"></div>
+  </div>
 
-    <section class="card">
-      <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop a PDF here or choose a file">
-        <div class="drop-inner">
-          <div class="drop-title">Drag &amp; drop a PDF</div>
-          <div class="drop-hint">or</div>
-          <label class="btn" for="fileInput">Choose file</label>
-          <input id="fileInput" type="file" accept="application/pdf,.pdf" hidden />
-          <div id="dropFileInfo" class="drop-file" hidden>
-            <div class="drop-file-label">Selected</div>
-            <div id="dropFileName" class="drop-file-name"></div>
-            <div id="dropFileMeta" class="drop-file-meta"></div>
+  <!-- Top navigation bar -->
+  <nav class="navbar">
+    <div class="navbar__inner">
+      <a href="#" class="navbar__brand" aria-label="ResumeUnmark Home">
+        <img src="./assets/ResumeUnmark_icon.png" alt="" width="32" height="32" class="navbar__icon" />
+        <span class="navbar__name">ResumeUnmark</span>
+      </a>
+      <div class="navbar__actions">
+        <button class="navbar__theme-toggle" id="themeToggle" type="button" aria-label="Toggle light/dark mode">
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <!-- Hero -->
+    <section class="hero">
+      <h1 class="hero__title">Clean your PDFs.<br /><span class="hero__gradient">Privately.</span></h1>
+      <p class="hero__subtitle">Remove watermarks, logos, and edge text from resumes and documents — entirely in your
+        browser. Nothing is ever uploaded.</p>
+    </section>
+
+    <!-- Workspace -->
+    <section class="workspace">
+
+      <!-- Upload card -->
+      <div class="glass-card glass-card--upload">
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Drop a PDF here or choose a file">
+          <div class="dropzone__inner">
+            <div class="dropzone__icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            </div>
+            <div class="dropzone__title">Drag &amp; drop your PDF</div>
+            <div class="dropzone__hint">or</div>
+            <label class="btn btn--secondary" for="fileInput">Choose file</label>
+            <input id="fileInput" type="file" accept="application/pdf,.pdf" hidden />
+            <div id="dropFileInfo" class="dropzone__file-info" hidden>
+              <div class="dropzone__file-badge">Selected</div>
+              <div id="dropFileName" class="dropzone__file-name"></div>
+              <div id="dropFileMeta" class="dropzone__file-meta"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="row">
-        <button id="cleanBtn" class="btn primary" type="button" disabled>Clean &amp; Download</button>
-        <button id="clearBtn" class="btn" type="button" disabled>Clear</button>
-      </div>
-
-      <details class="advanced">
-        <summary>Advanced options</summary>
-        <div class="grid">
-          <label class="field">
-            <span>Bottom-right box width (pt)</span>
-            <input id="boxWidth" type="number" min="0" step="1" value="200" />
-          </label>
-          <label class="field">
-            <span>Bottom-right box height (pt)</span>
-            <input id="boxHeight" type="number" min="0" step="1" value="70" />
-          </label>
-          <label class="field check">
-            <input id="removeEdgeText" type="checkbox" checked />
-            <span>Also remove small right-edge text (experimental)</span>
-          </label>
-          <label class="field check">
-            <input id="removeAnnots" type="checkbox" checked />
-            <span>Also remove annotations in cleaned area (recommended)</span>
-          </label>
+        <div class="action-row">
+          <button id="cleanBtn" class="btn btn--primary" type="button" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Clean &amp; Download
+          </button>
+          <button id="clearBtn" class="btn btn--ghost" type="button" disabled>Clear</button>
         </div>
-        <p class="note">
-          If your resume has content near the far-right margin (right column / sidebar), turn off the experimental
-          option.
-          Removing annotations may also remove clickable links in the cleaned area.
-        </p>
-      </details>
-    </section>
 
-    <section class="card">
-      <div class="status-head">
-        <div class="status-title">Status</div>
-        <div id="fileLabel" class="file-label">No file selected</div>
+        <!-- Advanced options -->
+        <details class="options">
+          <summary class="options__toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+            Advanced options
+            <span class="options__chevron" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </span>
+          </summary>
+          <div class="options__body">
+            <div class="options__grid">
+              <label class="field">
+                <span class="field__label">Box width <span class="field__unit">(pt)</span></span>
+                <input id="boxWidth" type="number" min="0" step="1" value="200" class="field__input" />
+              </label>
+              <label class="field">
+                <span class="field__label">Box height <span class="field__unit">(pt)</span></span>
+                <input id="boxHeight" type="number" min="0" step="1" value="70" class="field__input" />
+              </label>
+            </div>
+            <label class="toggle-field">
+              <input id="removeEdgeText" type="checkbox" checked class="toggle-field__input" />
+              <span class="toggle-field__switch" aria-hidden="true"></span>
+              <span class="toggle-field__text">Remove small right-edge text <span
+                  class="toggle-field__tag">Experimental</span></span>
+            </label>
+            <label class="toggle-field">
+              <input id="removeAnnots" type="checkbox" checked class="toggle-field__input" />
+              <span class="toggle-field__switch" aria-hidden="true"></span>
+              <span class="toggle-field__text">Remove annotations in cleaned area <span
+                  class="toggle-field__tag">Recommended</span></span>
+            </label>
+            <p class="options__note">If your resume has content near the far-right margin (sidebar), disable the
+              edge-text option. Removing annotations may also remove clickable links in the cleaned area.</p>
+          </div>
+        </details>
       </div>
-      <pre id="log" class="log" aria-live="polite"></pre>
+
+      <!-- Status card -->
+      <div class="glass-card glass-card--status">
+        <div class="status-header">
+          <div class="status-header__left">
+            <span class="status-header__dot"></span>
+            <span class="status-header__label">Console</span>
+          </div>
+          <div id="fileLabel" class="status-header__file">No file selected</div>
+        </div>
+        <pre id="log" class="console-log" aria-live="polite"></pre>
+      </div>
+
     </section>
 
-    <footer class="footer">
-      <p>
-        Tip: For multiple PDFs, process one at a time (browsers may block many automatic downloads).
-      </p>
+    <!-- Footer -->
+    <footer class="site-footer">
+      <p class="site-footer__tip">For multiple PDFs, process one at a time — browsers may block batch downloads.</p>
     </footer>
   </main>
 
   <script type="module" src="./app.js"></script>
+  <script>
+    // Theme toggle (pure UI — does not touch app.js)
+    (() => {
+      const toggle = document.getElementById('themeToggle');
+      if (!toggle) return;
+      const root = document.documentElement;
+      const stored = localStorage.getItem('ru-theme');
+      if (stored) root.setAttribute('data-theme', stored);
+
+      toggle.addEventListener('click', () => {
+        const current = root.getAttribute('data-theme');
+        let next;
+        if (current === 'light') next = 'dark';
+        else if (current === 'dark') next = 'light';
+        else next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('ru-theme', next);
+      });
+    })();
+  </script>
 </body>
 
 </html>
